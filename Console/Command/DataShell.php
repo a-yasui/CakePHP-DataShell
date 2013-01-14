@@ -2,9 +2,10 @@
 /**
  * Data Shell
  */
-App::import('Core', 'File', false);
+App::uses('AppShell', 'Console/Command');
+App::uses('File', "Core");
 
-class DataShell extends Shell
+class DataShell extends AppShell
 {
 	protected $directory;
 	protected $connection = 'default';
