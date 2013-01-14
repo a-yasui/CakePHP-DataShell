@@ -1,8 +1,7 @@
 Introduction
 ===============
 
-    $ cd app/Plugin
-    $ git submodule add git://github.com/a-yasui/CakePHP-DataShell.git
+    $ git submodule add git://github.com/a-yasui/CakePHP-DataShell.git app/Plugin/CakePHP-DataShell
 
 And add for bootstrap.php
 
