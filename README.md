@@ -1,15 +1,27 @@
 Introduction
 ===============
-	git clone git://github.com/rewish/CakePHP-DataShell.git
-	cp CakePHP-DataShell/vendors/shells/data.php {APPROOT}/vendors/shells/data.php
+
+    $ cd app/Plugin
+    $ git submodule add git://github.com/a-yasui/CakePHP-DataShell.git
+
+And add for bootstrap.php
+
+    CakePlugin::load(array("CakePHPDataShell"));
+
 
 Usage
 ===============
 
 Export
 ---------------
-	cake data export {Model name|Table name}
+	cake CakePHP-DataShell.data export {Model name|Table name}
 
 Import
 ---------------
-	cake data import {Model name|Table name}
+	cake CakePHP-DataShell.data import {Model name|Table name}
+
+Memo
+======
+
+  This keep to CakePHP 2.2.4. But not test yet.
+
