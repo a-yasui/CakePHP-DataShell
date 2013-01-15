@@ -10,14 +10,14 @@ class DataShell extends AppShell
 	protected $directory;
 	protected $connection = 'default';
 
-	public function startup()
-	{
+	public function startup() {
 		parent::startup();
 
 		if (!empty($this->params['directory'])) {
 			$this->directory = $this->params['directory'];
-		} else {
-			$this->directory = APP . 'config' . DS . 'schema' . DS . 'data';
+		}
+		else {
+			$this->directory = APP . 'config' . DS . 'Schema' . DS . 'data';
 		}
 		$this->directory .= DS;
 
@@ -30,27 +30,52 @@ class DataShell extends AppShell
 		}
 	}
 
-	public function main()
-	{
+	public function main() {
 		$this->help();
 	}
 
-	public function help()
-	{
+	public function help() {
 		$help = <<<TEXT
-Usage: 
-	cake data export <name>
-	cake data import <name>
+<info>Usage:</info>
+	cake CakePHP-DataShell.data export <name>
+	cake CakePHP-DataShell.data import <name>
+	cake CakePHP-DataShell.data display
+
+<info>Option:</info>
+	--directory <directory>  :   Export/Import Directory.
+	                             Default: `APP/config/schema/data'
+	--connection <connection>:   Choise to connection configure.
+	                             Default: `default'
 TEXT;
-		$this->out($help);
+		$this->out(__d("cake_console", $help));
 		$this->_stop();
 	}
 
-	public function export()
-	{
+	public function display () {
+		$modelNames = App::objects('model');
+
+		$this->out(__d('cake_console', sprintf("<info>%13s : %5s</info>", "Model Name", "Count")));
+
+		foreach ($modelNames as $modelName) {
+			$Model = ClassRegistry::init($modelName);
+			$Model->useDbConfig = $this->connection;
+
+			try {
+				$count = $Model->find('count', array("callbacks"=>false));
+				$this->out(__d('cake_console', sprintf("%13s : %5s", $modelName, $count)));
+			}
+			catch (Exception $e) {
+				// pass
+			}
+		}
+		$this->_stop();
+	}
+
+	public function export() {
 		if (!empty($this->params['name'])) {
 			$modelNames = array(Inflector::camelize(Inflector::singularize($this->params['name'])));
-		} else {
+		}
+		else {
 			$modelNames = App::objects('model');
 		}
 
@@ -64,28 +89,34 @@ TEXT;
 				continue;
 			}
 
-			$content = "<?php\n";
-			$content .= "class {$Model->name}Data\n{\n";
+			$content  = "<?php\n";
+			$content .= "class {$Model->name}Data {\n";
 			$content .= "\tpublic \$name = '{$Model->name}';\n\n";
-			$content .= "\tpublic \$records = array(\n";
+			$content .= "\tpublic \$records = array(";
 
 			foreach ($records as $record) {
-				$content .= "\t\tarray(\n";
+				$values = array("\n\t\tarray(");
 				foreach ($record[$Model->alias] as $field => $value) {
 					if (is_null($value)) {
-						$content .= "\t\t\t'$field' => null,\n";
-					} else {
-						$content .= "\t\t\t'$field' => '$value',\n";
+						$values[] = "\t'$field' => null,";
+					}
+					elseif (is_numeric($value)) {
+						$values[] = "\t'$field' => $value,";
+					}
+					else {
+						$values[] = "\t'$field' => '$value',";
 					}
 				}
-				$content .= "\t\t),\n";
+				$values[] = "),";
+				$content .= implode("\n\t\t", $values);
 			}
-			$content .= "\t);\n";
+			$content .= "\n\t);\n";
 			$content .= '}';
 
 			$filePath = $this->directory . Inflector::underscore($Model->name) . '_data.php';
 			$file = new File($filePath, true);
 			$file->write($content);
+			$file->close($filePath);
 
 			$this->out('Data exported: ' . $Model->name);
 		}
