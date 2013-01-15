@@ -19,6 +19,10 @@ Import
 ---------------
 	cake CakePHP-DataShell.data import {Model name|Table name}
 
+Display
+--------------
+    cake CakePHP-DataShell.data display
+
 Memo
 ======
 
