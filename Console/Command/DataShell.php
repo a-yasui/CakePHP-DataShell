@@ -136,7 +136,15 @@ TEXT;
 		}
 
 		foreach ($dataObjects as $data) {
-			App::import('class', $data, false, $this->directory);
+			// App::uses($data, "Config/Schema/data");
+			// require_once($this->directory."/".$data);
+			// App::import('Config/Schema/data', $data, false, $this->directory);
+			// var_dump($this);
+			App::uses($data, "Config/Schema/data/");
+			$vars = get_class_vars($data);
+			if (!$vars)
+				throw new Exception("Not found " . $data);
+			// var_dump(extract($data));
 			extract(get_class_vars($data));
 
 			if (empty($records) || !is_array($records)) {
